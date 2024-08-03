@@ -56,17 +56,26 @@ try:
             cursor.execute(insertMove, (move,))
             print(f"Move {move} inserido")
     
+        cursor.execute("SELECT id FROM pokemon.habilidades;")
+        habilidades = cursor.fetchall()
+
+        habilidade_id = []
+        for habilidade in habilidades:
+            habilidade_id.append(habilidade[0])
+
+        
 
     for pokemon in pokelist:
+        habilidadeAleatoria = choice(habilidade_id)
         selectPokemon = "SELECT nome FROM pokemon.t_pokemon WHERE nome = %s;"
-        cursor.execute(selectPokemon, (pokemon,))
+        cursor.execute(selectPokemon, (pokemon, ))
         pokemonsExists = cursor.fetchall()
         if any(pokemon == pokemoninList[0] for pokemoninList in pokemonsExists):
             print(f"Pokemon {pokemon} já existe")
         else:
-            insertPokemon = "INSERT INTO pokemon.t_pokemon (nome) VALUES (%s);"
-            cursor.execute(insertPokemon, (pokemon,))
-            print(f"Pokemon {pokemon} inserido")
+            insertPokemon = "INSERT INTO pokemon.t_pokemon (nome, habilidade_id) VALUES (%s, %s);"
+            cursor.execute(insertPokemon, (pokemon, habilidadeAleatoria, ))
+            print(f"Pokemon {pokemon} inserido com a habilidade {habilidadeAleatoria}")
 
 
     conexao.commit()
