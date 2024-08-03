@@ -2,15 +2,12 @@ import mysql.connector
 import requests
 from ConectaBanco import ConexãoBanco
 
-
 banco = ConexãoBanco()
-
 
 urls = {
     "pokemon": "https://pokeapi.co/api/v2/pokemon/",
     "move": "https://pokeapi.co/api/v2/move/",
 }
-
 
 pokelist = []
 movelist = []
@@ -20,7 +17,7 @@ for key, url in urls.items():
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            print(f"Conexão realizada com a URL {url}")
+            print(f"conection realized with the URL {url}")
             if key == "pokemon":
                 for pokemon in response.json()["results"]:
                     pokelist.append(pokemon["name"])  
@@ -45,18 +42,25 @@ try:
     cursor = conexao.cursor()
     
     for pokemon in pokelist:
-        select = "INSERT INTO pokemon.t_pokemon (nome) VALUES (%s);"
-        cursor.execute(select, (pokemon,))
-        print(f"Inserted {pokemon}")
+        selectPokemon = "SELECT nome FROM pokemon.t_pokemon WHERE nome = %s;"
+        cursor.execute(selectPokemon, (pokemon,))
+        pokemonsExists = cursor.fetchall()
+        if any(pokemon == pokemoninList[0] for pokemoninList in pokemonsExists):
+            print(f"Pokemon {pokemon} já existe")
+        else:
+            insertPokemon = "INSERT INTO pokemon.t_pokemon (nome) VALUES (%s);"
+            cursor.execute(insertPokemon, (pokemon,))
+            print(f"Pokemon {pokemon} inserido")
+    
 
     conexao.commit()
     
 except mysql.connector.Error as e:
-    print("Não foi possível se conectar, erro: ", e)
+    print("Could not connect to the database., erro: ", e)
     conexao.rollback()
 
 finally:
     if 'conexao' in locals() and conexao.is_connected():
         cursor.close()
         conexao.close()
-        print("Conexão com o banco de dados encerrada.")
+        print("Database connection closed.")
