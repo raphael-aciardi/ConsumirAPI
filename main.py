@@ -1,13 +1,17 @@
+from ConectaBanco import ConexãoBanco
 import mysql.connector
 import requests
-from ConectaBanco import ConexãoBanco
+from random import choice
+
 
 banco = ConexãoBanco()
+
 
 urls = {
     "pokemon": "https://pokeapi.co/api/v2/pokemon/",
     "move": "https://pokeapi.co/api/v2/move/",
 }
+
 
 pokelist = []
 movelist = []
@@ -41,6 +45,18 @@ try:
     conexao.autocommit = False
     cursor = conexao.cursor()
     
+    for move in movelist:
+        selectMove = "SELECT skills FROM habilidades WHERE skills = %s;"
+        cursor.execute(selectMove, (move,))
+        movesExists = cursor.fetchall()
+        if any(move == moveinList[0] for moveinList in movesExists):
+            print(f"Move {move} já existe")
+        else:
+            insertMove = "INSERT INTO habilidades (skills) VALUES (%s);"
+            cursor.execute(insertMove, (move,))
+            print(f"Move {move} inserido")
+    
+
     for pokemon in pokelist:
         selectPokemon = "SELECT nome FROM pokemon.t_pokemon WHERE nome = %s;"
         cursor.execute(selectPokemon, (pokemon,))
@@ -51,7 +67,7 @@ try:
             insertPokemon = "INSERT INTO pokemon.t_pokemon (nome) VALUES (%s);"
             cursor.execute(insertPokemon, (pokemon,))
             print(f"Pokemon {pokemon} inserido")
-    
+
 
     conexao.commit()
     
