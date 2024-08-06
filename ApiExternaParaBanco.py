@@ -89,13 +89,6 @@ def conectDatabase(movelist, pokelist, habilidade_id):
         conexao.commit()
 
 
-
-
-
-
-
-
-
     except mysql.connector.Error as e:
         print("Could not connect to the database., erro: ", e)
         conexao.rollback()
